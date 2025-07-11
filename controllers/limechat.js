@@ -2,13 +2,31 @@ import fetch from "node-fetch"
 
 const sendLimeChatWhatsappTrigger = async(order,status) =>{
     try{
-        console.log('sending limechat trigger')
         let event = null;
-        if(status == 'order_cod_refund_not_eligible'){
-            event = 'refund_policy'
-        }else if(status == 'order_status_refund_not_eligible'){
-            event = 'refund_policy'
-        };
+        switch(status){
+            case 'order_cod_refund_not_eligible' : 
+                event = 'refund_policy'
+            break;
+            case 'order_status_refund_not_eligible' :
+                event = 'refund_policy'
+            break;
+            case 'website_offer' :
+                event = 'website_offer'
+            break;
+            case 'store_locator' :
+                event = 'store_locator'
+            break;
+            case 'collaboration' :
+                event = 'collaboration'
+            break;
+            case 'distibutor' :
+                event = 'distibutor'
+            break;
+            case 'bulk_order' :
+                event = 'bulk_order'
+            break;
+        }
+        console.log('sending this event to the customer',event,order.customer.defaultPhoneNumber.phoneNumber);
         let customerPhone = order.customer.defaultPhoneNumber.phoneNumber;
         let requestUrl = 'https://flow-builder.limechat.ai/api/v1/cvf-events';
         let requestBody = {
@@ -26,9 +44,8 @@ const sendLimeChatWhatsappTrigger = async(order,status) =>{
             },
             body: JSON.stringify(requestBody)
         });
-        console.log(customerPhone);
         const data = await request.json();
-        console.log(data);
+        console.log('request sent to limechat');
     }catch(err){
 
     }

@@ -5,7 +5,7 @@ const getTrackingStatusFromDelhivery = async(awb,orderId) =>{
         const url = `https://track.delhivery.com/api/v1/packages/json/?waybill=${awb}&ref_ids=${orderId}`;
         const request = await fetch(url,{
             headers:{
-                'Authorization': 'Token c2388ac9c3b50cf240c9023f2c663e554cbc58a2'
+                'Authorization': `Token ${process.env.DELHIVERY_API}`
             }
         });
         const data = await request.json();
