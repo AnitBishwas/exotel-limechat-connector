@@ -1,5 +1,6 @@
 import { clientProvider } from "../utils/shopify.js";
 import { getTrackingStatusFromShipRocket } from "./shiprocket.js";
+import { getTrackingStatusFromDelhivery } from "./delhivery.js";
 
 const getOrderStatusByPhoneNumber = async (phone) => {
   try {
@@ -168,13 +169,14 @@ const getOrderByOrderName = async (orderName) => {
       return null;
     }
     order = order.node;
-    try{
+    try {
       const tracking = await getOrderTrackingInfo(order);
       order.tracking = tracking;
-    }catch(err){
+    } catch (err) {
       console.log("Failed to get tracking reason -->" + err.message);
       order.tracking = null;
-    }
+    };
+    console.log(order);
     return order;
   } catch (err) {
     throw new Error(
@@ -469,7 +471,10 @@ const cancelOrder = async (order) => {
     };
     const res = await clientProvider(query, variables);
     const data = res.data;
-    if (data.orderCancel?.orderCancelUserErrors.length == 0 && data.orderCancel?.userErrors.length == 0) {
+    if (
+      data.orderCancel?.orderCancelUserErrors.length == 0 &&
+      data.orderCancel?.userErrors.length == 0
+    ) {
       return true;
     }
     return false;
@@ -477,18 +482,34 @@ const cancelOrder = async (order) => {
     throw new Error("Failed to cancel order reason --> " + err.message);
   }
 };
-const getOrderTrackingInfo = async (order) =>{
-  try{
+const getOrderTrackingInfo = async (order) => {
+  try {
     let tracking = null;
-    const isCompanyShiprocket = order.fulfillments.length > 0 && order.fulfillments[0]?.trackingInfo[0]?.company == 'SHIPROCKET' ? true : false;
-    if(isCompanyShiprocket){
-      let orderId = order.name.replace("#","");
+    const isCompanyShiprocket =
+      order.fulfillments.length > 0 &&
+      order.fulfillments[0]?.trackingInfo[0]?.company == "SHIPROCKET"
+        ? true
+        : false;
+    const isCompanyDelhivery =
+      order.fulfillments.length > 0 &&
+      order.fulfillments[0]?.trackingInfo[0]?.company == "Delhivery"
+        ? true
+        : false;
+    let orderId = order.name.replace("#", "");
+    let trackingNumber =
+      order.fulfillments.length > 0 &&
+      order.fulfillments[0]?.trackingInfo[0]?.number;
+    if (isCompanyShiprocket) {
       tracking = await getTrackingStatusFromShipRocket(orderId);
     }
-  }catch(err){
+    if (isCompanyDelhivery) {
+      tracking = await getTrackingStatusFromDelhivery(trackingNumber, orderId);
+    }
+    return tracking;
+  } catch (err) {
     throw new Error("Failed to get order tracking info reason --> " + err);
   }
-}
+};
 export {
   getOrderStatusByPhoneNumber,
   getOrderStatusByName,

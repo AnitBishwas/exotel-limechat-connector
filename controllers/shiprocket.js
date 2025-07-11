@@ -29,6 +29,7 @@ const getTrackingStatusFromShipRocket = async(orderId) =>{
             throw new Error("Order ID is required to fetch tracking status")
         }
         const token = await generateAuthToken();
+        console.log(token);
         const url = `https://apiv2.shiprocket.in/v1/external/courier/track?order_id=${orderId}`;
         const request = await fetch(url,{
             method:'GET',
@@ -37,7 +38,22 @@ const getTrackingStatusFromShipRocket = async(orderId) =>{
             }
         });
         const data = await request.json();
-        console.dir(data,{depth: null});
+        let formattedData = {
+            edd : data[0].tracking_data.shipment_track[0].edd,
+            delivered: {
+                ok: data[0].tracking_data.shipment_track[0].delivered_date.length > 0,
+                date: data[0].tracking_data.shipment_track[0].delivered_date 
+            },
+            attempted_delivery : {
+                ok: data[0].tracking_data.shipment_track_activities.find(el => el['activity'] == 'PENDING FOR RE-ATTEMPT')?.date ? true : false,
+                date : data[0].tracking_data.shipment_track_activities.find(el => el['activity'] == 'PENDING FOR RE-ATTEMPT')?.date || null,
+            },
+            cancelled_date : {
+                ok: data[0].tracking_data.shipment_track_activities.find(el => el['activity'] == 'CANCELLED')?.date ? true : false,
+                date: data[0].tracking_data.shipment_track_activities.find(el => el['activity'] == 'CANCELLED')?.date 
+            }
+        };
+        return formattedData;
     }catch(err){
         throw new Error("Failed to get tracking status from shiprocket reason --> " + err.message);
     }
