@@ -185,7 +185,7 @@ const getOrderByOrderName = async (orderName) => {
     );
   }
 };
-const mapOrderStatus = (order) => {
+const mapOrderStatus = async(order) => {
   try {
     /*
     order status mapped on variuos scenarios 
@@ -202,6 +202,13 @@ const mapOrderStatus = (order) => {
     - Placed : Order confirmed property
     */
     let order_tags = order.tags.map((el) => el.toLowerCase());
+    try {
+      const tracking = await getOrderTrackingInfo(order);
+      order.tracking = tracking;
+    } catch (err) {
+      console.log("Failed to get tracking reason -->" + err.message);
+      order.tracking = null;
+    };
     if (order_tags.indexOf("refund_credited") != -1) {
       return "refund_successfull";
     }

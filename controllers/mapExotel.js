@@ -1,3 +1,4 @@
+
 import {
   getOrderRefundStatusByPhone,
   getOrderStatusByName,
@@ -27,7 +28,7 @@ const mapExotelRequests = async (req, res) => {
         value: "order_status_phone",
       },
       {
-        key: "28535",
+        key: "28617",
         value: "order_status_id",
       },
       {
@@ -47,7 +48,7 @@ const mapExotelRequests = async (req, res) => {
         value: "order_cancel_id",
       },
       {
-        key: "7",
+        key: "28647",
         value: "website_offer",
       },
       {
@@ -209,10 +210,11 @@ const mapRequestToPlainText = (status, order, statusText) => {
     case "collaboration":
     case "distibutor":
     case "bulk_order":
-      text = "Forwarding to whatsapp only";
+      text = null;
       whatsapp = status;
       break;
   }
   return { text, whatsapp };
 };
+
 export default mapExotelRequests;
