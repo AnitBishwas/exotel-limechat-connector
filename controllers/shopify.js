@@ -13,7 +13,7 @@ const getOrderStatusByPhoneNumber = async (phone) => {
         status: "no_order_against_phone",
       };
     let customer_id = customer.id.replace("gid://shopify/Customer/", "");
-    const order = await getMostRecentOrderByCustomerId(customer_id);
+    const order = await getOrderByCustomerId(customer_id);
     if (!order) {
       return {
         status: "no_order_against_phone",
@@ -50,6 +50,11 @@ const getOrderStatusByName = async (orderName) => {
     );
   }
 };
+/**
+ * 
+ * @param {string} phone 
+ * @returns {string} customerId
+ */
 const getCustomerIdByPhoneNumber = async (phone) => {
   try {
     const query = `query($identifier: CustomerIdentifierInput!){
@@ -63,21 +68,28 @@ const getCustomerIdByPhoneNumber = async (phone) => {
       },
     };
     const request = await clientProvider(query, variables);
-    const response = request.data.customer;
-    return response;
+    const response = request.data.customer ? request.data.customer.id : null;
+    return response.replace("gid://shopify/Customer/", "");
   } catch (err) {
     throw new Error(
       "Failed to get customer by phone number reason --> " + err.message
     );
   }
 };
-const getMostRecentOrderByCustomerId = async (customerId) => {
+
+/**
+ * Get customer order
+ * @param {string} customerId 
+ * @returns {object} shopify order object
+ */
+const getOrderByCustomerId = async (customerId) => {
   try {
     const query = `query{
       orders(first:1,query:"customer_id:${customerId}",reverse: true){
         edges{
           node{
             id
+            name
             createdAt
             returnStatus
             cancelledAt 
@@ -105,6 +117,7 @@ const getMostRecentOrderByCustomerId = async (customerId) => {
             fulfillments(first:50){
               trackingInfo(first:10){
                 number
+                company
               }
             }
           }
@@ -112,11 +125,19 @@ const getMostRecentOrderByCustomerId = async (customerId) => {
       }
     }`;
     const request = await clientProvider(query);
-    const order = request.data.orders.edges[0];
+    let order = request.data.orders.edges[0];
     if (!order) {
       return null;
-    }
-    return order.node;
+    };
+    order = order.node;
+    try {
+      const tracking = await getOrderTrackingInfo(order);
+      order.tracking = tracking;
+    } catch (err) {
+      console.log("Failed to get tracking reason -->" + err.message);
+      order.tracking = null;
+    };
+    return order;
   } catch (err) {
     throw new Error("Failed to get customer order reason --> " + err.message);
   }
@@ -295,7 +316,7 @@ const getOrderRefundStatusByPhone = async (phone) => {
     const customer = await getCustomerIdByPhoneNumber(phone);
     if (customer == null) return "no_customer_found_phone";
     let customer_id = customer.id.replace("gid://shopify/Customer/", "");
-    const order = await getMostRecentOrderByCustomerId(customer_id);
+    const order = await getOrderByCustomerId(customer_id);
     if (!order) {
       return {
         status: "no_order_found_orderId",
@@ -348,7 +369,7 @@ const cancelOrderByPhone = async (phone) => {
     const customer = await getCustomerIdByPhoneNumber(phone);
     if (customer == null) return "no_customer_found_phone";
     let customer_id = customer.id.replace("gid://shopify/Customer/", "");
-    const order = await getMostRecentOrderByCustomerId(customer_id);
+    const order = await getOrderByCustomerId(customer_id);
     if (!order) {
       return {
         status: "no_order_against_phone",
@@ -524,4 +545,6 @@ export {
   getOrderRefundStatusByOrderName,
   cancelOrderByPhone,
   cancelOrderByOrderName,
+  getCustomerIdByPhoneNumber,
+  getOrderByCustomerId
 };

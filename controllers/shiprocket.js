@@ -1,6 +1,9 @@
 import fetch from "node-fetch";
 
-
+/**
+ * Generate auth token for shiprocket
+ * @returns {string} authtoken
+ */
 const generateAuthToken = async () =>{
     try{
         const url = `https://apiv2.shiprocket.in/v1/external/auth/login`;
@@ -23,6 +26,12 @@ const generateAuthToken = async () =>{
         throw new Error("Failed to generate shiprocket auth token reason --> " + err.message);
     }
 };
+
+/**
+ * Get tracking status from shiprocket
+ * @param {string} orderId - shopify order id
+ * @returns {object} - tracking object
+ */
 const getTrackingStatusFromShipRocket = async(orderId) =>{
     try{
         if(!orderId){

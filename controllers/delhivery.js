@@ -1,5 +1,12 @@
 import fetch from "node-fetch";
 
+
+/**
+ * Get order tracking status from delivery
+ * @param {string} awb - order awb number can be retrieved from shopify admin panel
+ * @param {string} orderId - shopify id
+ * @returns {object} - tracking object
+ */
 const getTrackingStatusFromDelhivery = async(awb,orderId) =>{
     try{
         const url = `https://track.delhivery.com/api/v1/packages/json/?waybill=${awb}&ref_ids=${orderId}`;

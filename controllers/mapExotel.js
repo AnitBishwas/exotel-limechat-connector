@@ -1,4 +1,5 @@
 
+import mapping from "./exotelMapping.js";
 import {
   getOrderRefundStatusByPhone,
   getOrderStatusByName,
@@ -130,6 +131,7 @@ const mapExotelRequests = async (req, res) => {
     throw new Error(err.message);
   }
 };
+
 const mapRequestToPlainText = (status, order, statusText) => {
   let whatsapp = null;
   let text = null;
