@@ -69,6 +69,9 @@ const getCustomerIdByPhoneNumber = async (phone) => {
     };
     const request = await clientProvider(query, variables);
     const response = request.data.customer ? request.data.customer.id : null;
+    if(!response){
+      throw new Error("No customer found")
+    }
     return response.replace("gid://shopify/Customer/", "");
   } catch (err) {
     throw new Error(
@@ -142,6 +145,11 @@ const getOrderByCustomerId = async (customerId) => {
     throw new Error("Failed to get customer order reason --> " + err.message);
   }
 };
+/**
+ * 
+ * @param {string} orderName 
+ * @returns {object} shgopify order object
+ */
 const getOrderByOrderName = async (orderName) => {
   try {
     const query = `query{
@@ -197,13 +205,57 @@ const getOrderByOrderName = async (orderName) => {
       console.log("Failed to get tracking reason -->" + err.message);
       order.tracking = null;
     };
-    console.log(order);
     return order;
   } catch (err) {
     throw new Error(
       "Failed to get order by order name reason --> ",
-      +err.message
+      + err.message
     );
+  }
+};
+/**
+ * 
+ * @param {object} order - shopify order
+ * @returns 
+ */
+const cancelOrder = async (order) => {
+  try {
+    const query = `mutation OrderCancel($orderId: ID!, $notifyCustomer: Boolean, $refund: Boolean!, $restock: Boolean!, $reason: OrderCancelReason!, $staffNote: String){
+      orderCancel(orderId: $orderId, notifyCustomer: $notifyCustomer, refund: $refund, restock: $restock, reason: $reason, staffNote: $staffNote){
+        job {
+          id
+          done
+        }
+        orderCancelUserErrors{
+          field
+          message
+          code
+        }
+        userErrors{
+          field
+          message
+        }
+      }
+    }`;
+    const variables = {
+      orderId: order.id,
+      notifyCustomer: true,
+      restock: true,
+      refund: order.paymentGatewayNames.indexOf("cash_on_delivery") == -1,
+      reason: "CUSTOMER",
+      staffNote: "Order cancelled via IVR",
+    };
+    const res = await clientProvider(query, variables);
+    const data = res.data;
+    if (
+      data.orderCancel?.orderCancelUserErrors.length == 0 &&
+      data.orderCancel?.userErrors.length == 0
+    ) {
+      return true;
+    }
+    return false;
+  } catch (err) {
+    throw new Error("Failed to cancel order reason --> " + err.message);
   }
 };
 const mapOrderStatus = async(order) => {
@@ -470,46 +522,6 @@ const checkOrderCancellationEligibility = (order) => {
     );
   }
 };
-const cancelOrder = async (order) => {
-  try {
-    const query = `mutation OrderCancel($orderId: ID!, $notifyCustomer: Boolean, $refund: Boolean!, $restock: Boolean!, $reason: OrderCancelReason!, $staffNote: String){
-      orderCancel(orderId: $orderId, notifyCustomer: $notifyCustomer, refund: $refund, restock: $restock, reason: $reason, staffNote: $staffNote){
-        job {
-          id
-          done
-        }
-        orderCancelUserErrors{
-          field
-          message
-          code
-        }
-        userErrors{
-          field
-          message
-        }
-      }
-    }`;
-    const variables = {
-      orderId: order.id,
-      notifyCustomer: true,
-      restock: true,
-      refund: order.paymentGatewayNames.indexOf("cash_on_delivery") == -1,
-      reason: "CUSTOMER",
-      staffNote: "Order cancelled via IVR",
-    };
-    const res = await clientProvider(query, variables);
-    const data = res.data;
-    if (
-      data.orderCancel?.orderCancelUserErrors.length == 0 &&
-      data.orderCancel?.userErrors.length == 0
-    ) {
-      return true;
-    }
-    return false;
-  } catch (err) {
-    throw new Error("Failed to cancel order reason --> " + err.message);
-  }
-};
 const getOrderTrackingInfo = async (order) => {
   try {
     let tracking = null;
@@ -546,5 +558,7 @@ export {
   cancelOrderByPhone,
   cancelOrderByOrderName,
   getCustomerIdByPhoneNumber,
-  getOrderByCustomerId
+  getOrderByCustomerId,
+  getOrderByOrderName,
+  cancelOrder
 };

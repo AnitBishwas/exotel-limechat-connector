@@ -1,5 +1,12 @@
 import ExotelTextModel from "../models/ExotelText.js";
-import { getOrderStatusByPhone } from "./actions.js";
+import {
+  cancelOrderByPhone,
+  cancelOrderByOrderId,
+  getOrderRefundStatusByOrderId,
+  getOrderRefundStatusByPhone,
+  getOrderStatusByOrderId,
+  getOrderStatusByPhone,
+} from "./actions.js";
 import mapping from "./exotelMapping.js";
 
 /**
@@ -71,44 +78,50 @@ const mapFlowId = (flowId) => {
  * @param {string} phone - customer phone number
  * @param {digits} string - digits entered by customer
  */
-const mapActionsToText = async (action, phone, digits) => {
+const mapActions = async (action, phone, digits) => {
   try {
-    let text = null;
+    let data = {
+      text: null,
+      whatsappLabel: null,
+    };
     switch (action) {
       case "order_status_phone":
-        data = await getOrderStatusByPhone(phone);
+        data["text"] = await getOrderStatusByPhone(phone);
         break;
       case "order_status_id":
-        // get order status by order id
+        data["text"] = await getOrderStatusByOrderId(digits);
         break;
       case "order_refund_status_phone":
-        // get order refund status by phone
+        data["text"] = await getOrderRefundStatusByPhone(phone);
+        if(data["text"].includes("not eligible")){
+          data["whatsappLabel"] = 'order_cod_refund_not_eligible';
+        }
         break;
       case "order_refund_status_id":
-        // get order refund status by order id
+        data["text"] = await getOrderRefundStatusByOrderId(digits);
         break;
       case "order_cancel_phone":
-        // cancel order by phone
+        data["text"] = await cancelOrderByPhone(phone);
         break;
       case "order_cancel_id":
-        // cancel order by order id
+        data["text"] = await cancelOrderByOrderId(digits);
         break;
       case "store_locator":
-        // send store trigger to limechat
+        data["whatsappLabel"] = 'store_locator';
         break;
       case "collaboration":
-        // send collaboration trigger to limechat
+        data["whatsappLabel"] = 'collaboration';
         break;
       case "distibutor":
-        // send distibutor trigger to limechat
+        data["whatsappLabel"] = 'distibutor';
         break;
       case "bulk_order":
-        // send bulk order trigger to limechat
+        data["whatsappLabel"] = 'bulk_order';
         break;
     }
     return data;
   } catch (err) {
-    throw new Error(err.message);
+    throw new Error("Failed to map actions to text reason -->" + err.message);
   }
 };
-export { storeTextInDb, getTextBySsid, mapFlowId, mapActionsToText };
+export { storeTextInDb, getTextBySsid, mapFlowId, mapActions };

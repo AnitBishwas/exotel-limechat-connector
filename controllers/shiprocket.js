@@ -55,6 +55,7 @@ const getTrackingStatusFromShipRocket = async(orderId) =>{
             attempted_delivery : {
                 ok: data[0].tracking_data.shipment_track_activities.find(el => el['activity'] == 'PENDING FOR RE-ATTEMPT')?.date ? true : false,
                 date : data[0].tracking_data.shipment_track_activities.find(el => el['activity'] == 'PENDING FOR RE-ATTEMPT')?.date || null,
+                attempt_count : data[0].tracking_data.shipment_track_activities.filter(el => el['activity'] == 'PENDING FOR RE-ATTEMPT').length
             },
             cancelled_date : {
                 ok: data[0].tracking_data.shipment_track_activities.find(el => el['activity'] == 'CANCELLED')?.date ? true : false,

@@ -1,6 +1,6 @@
 import fetch from "node-fetch"
 
-const sendLimeChatWhatsappTrigger = async(order,status) =>{
+const sendLimeChatWhatsappTrigger = async(calSid,phone,status) =>{
     try{
         let event = null;
         switch(status){
@@ -26,12 +26,10 @@ const sendLimeChatWhatsappTrigger = async(order,status) =>{
                 event = 'bulk_order'
             break;
         }
-        console.log('sending this event to the customer',event,order.customer.defaultPhoneNumber.phoneNumber);
-        let customerPhone = order.customer.defaultPhoneNumber.phoneNumber;
         let requestUrl = 'https://flow-builder.limechat.ai/api/v1/cvf-events';
         let requestBody = {
-            distinct_id: customerPhone,
-            phone: customerPhone,
+            distinct_id: calSid,
+            phone: phone,
             event: event,
             data:{} 
         };

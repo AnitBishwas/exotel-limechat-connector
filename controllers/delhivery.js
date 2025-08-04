@@ -24,12 +24,16 @@ const getTrackingStatusFromDelhivery = async(awb,orderId) =>{
             },
             attempted_delivery:{
                 ok: data.ShipmentData[0].Shipment.FirstAttemptDate ? true : false,
-                date: data.ShipmentData[0].Shipment.FirstAttemptDate 
+                date: data.ShipmentData[0].Shipment.FirstAttemptDate,
+                attempt_count: 1
             },
-            cancelled_date:{
+            rto_date:{
                 ok: data.ShipmentData[0].Shipment.RTOStartedDate ? true : false,
                 date: data.ShipmentData[0].Shipment.RTOStartedDate 
-            } 
+            },
+            cancelled_date:{
+                ok: false
+            }
         }
         return formattedData;
     }catch(err){
