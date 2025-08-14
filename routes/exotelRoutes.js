@@ -10,6 +10,13 @@ import {
 
 const exotelRoutes = Router();
 
+exotelRoutes.get("/json", (req, res) => {
+  res
+    .send({
+      ok: true,
+    })
+    .status(200);
+});
 
 exotelRoutes.get("/message", async (req, res) => {
   try {
@@ -70,11 +77,5 @@ exotelRoutes.get("/", async (req, res) => {
   }
 });
 
-exotelRoutes.get("/json", (req, res) => {
-  res
-    .send({
-      ok: true,
-    })
-    .status(200);
-});
+
 export default exotelRoutes;
