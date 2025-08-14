@@ -37,4 +37,4 @@ jobs:
       run: sudo docker rm -f exotel-ivr || true
     - name: Run Docker Container
       run: |
-         sudo docker run -d --env-file ~/secrets/.env -p 8080:8080 --restart=always --name exotel-ivr anitbishwas/exotel-ivr
+         sudo docker run -d --env-file ~/secrets/.env -p 8082:8082 --restart=always --name exotel-ivr anitbishwas/exotel-ivr
