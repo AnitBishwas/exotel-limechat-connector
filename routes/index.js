@@ -7,3 +7,4 @@ const appRouter = Router();
 appRouter.use("/exotel",exotelRoutes);
 
 export default appRouter;
+
