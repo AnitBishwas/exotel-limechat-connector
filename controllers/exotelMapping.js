@@ -1,16 +1,16 @@
 const mapping = [
   {
-    key: "1",
+    key: "28617",
     value: "order_status_phone",
     limechat: false,
   },
   {
-    key: "28753",
+    key: "28617",
     value: "order_status_id",
     limechat: false,
   },
   {
-    key: "3",
+    key: "28702",
     value: "order_refund_status_phone",
     limechat: true,
   },
@@ -20,7 +20,7 @@ const mapping = [
     limechat: false,
   },
   {
-    key: "5",
+    key: "29380",
     value: "order_cancel_phone",
     limechat: false,
   },
@@ -35,22 +35,22 @@ const mapping = [
     limechat: true,
   },
   {
-    key: "8",
+    key: "28649",
     value: "store_locator",
     limechat: true,
   },
   {
-    key: "9",
+    key: "28649",
     value: "collaboration",
     limechat: false,
   },
   {
-    key: "10",
+    key: "28649",
     value: "distibutor",
     limechat: false,
   },
   {
-    key: "11",
+    key: "28649",
     value: "bulk_order",
     limechat: false,
   },
