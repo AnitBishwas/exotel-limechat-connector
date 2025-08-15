@@ -75,7 +75,7 @@ const getCustomerIdByPhoneNumber = async (phone) => {
     return response.replace("gid://shopify/Customer/", "");
   } catch (err) {
     throw new Error(
-      "Failed to get customer by phone number reason --> " + err.message
+      "Failed to get customer by phone number reason --> " + err.message + phone
     );
   }
 };
