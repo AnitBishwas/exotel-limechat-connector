@@ -11,7 +11,7 @@ import {
 const exotelRoutes = Router();
 
 exotelRoutes.get("/json", (req, res) => {
-  console.log('request was hit')
+  console.log('request was ')
   res
     .send({
       ok: true,
