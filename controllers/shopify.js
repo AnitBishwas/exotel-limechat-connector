@@ -57,6 +57,7 @@ const getOrderStatusByName = async (orderName) => {
  */
 const getCustomerIdByPhoneNumber = async (phone) => {
   try {
+    phone = phone.replace(/^0+/, '');
     const query = `query($identifier: CustomerIdentifierInput!){
       customer: customerByIdentifier(identifier: $identifier){
         id
