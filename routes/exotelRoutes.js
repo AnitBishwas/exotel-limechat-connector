@@ -55,7 +55,6 @@ exotelRoutes.get("/", async (req, res) => {
       customerPhone,
       digitsInserted
     );
-    console.log(mapCorrespondingActions)
     if (mapCorrespondingActions.text) {
       const storeText = await storeTextInDb(
         CallSid,

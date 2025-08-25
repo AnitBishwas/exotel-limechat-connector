@@ -1,4 +1,5 @@
 import fetch from "node-fetch"
+import { getCustomerIdByPhoneNumber, getLastFiverOrdersByCustomerId } from "./shopify.js";
 
 const sendLimeChatWhatsappTrigger = async(calSid,phone,status) =>{
     try{
@@ -48,4 +49,22 @@ const sendLimeChatWhatsappTrigger = async(calSid,phone,status) =>{
 
     }
 };
-export {sendLimeChatWhatsappTrigger};
+
+/**
+ * Get last 5 orders for customer by phone
+ * @param {string} phone - registered cutomer phone number
+ * @returns {array} orders - list of recent 5 orders created by customer
+ */
+const getLastFiveOrdersByCustomerPhone = async (phone) =>{
+    try{
+        const customerId = await getCustomerIdByPhoneNumber(phone);
+        if(!customerId){
+            throw new Error("No customer found with the associated phone number");
+        };
+        const orders = await getLastFiverOrdersByCustomerId(customerId);
+        return orders;
+    }catch(err){
+        throw new Error("Failed to get last five orders by customer phone reason -->" + err.message);
+    }
+}
+export {sendLimeChatWhatsappTrigger,getLastFiveOrdersByCustomerPhone};

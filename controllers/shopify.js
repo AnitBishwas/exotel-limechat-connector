@@ -58,7 +58,7 @@ const getOrderStatusByName = async (orderName) => {
 const getCustomerIdByPhoneNumber = async (phone) => {
   try {
     phone = phone.replace(/^0+/, '');
-    phone = "+91" + phone;
+    phone = phone.includes("+91") ? phone : "+91" + phone;
     const query = `query($identifier: CustomerIdentifierInput!){
       customer: customerByIdentifier(identifier: $identifier){
         id
@@ -552,6 +552,64 @@ const getOrderTrackingInfo = async (order) => {
     throw new Error("Failed to get order tracking info reason --> " + err);
   }
 };
+/**
+ * Get the last five orders by customer id
+ * @param {string} customerId - shopify customer id
+ * @returns {array} orders - List of orders
+ */
+const getLastFiverOrdersByCustomerId = async (customerId) => {
+  try {
+    const query = `query{
+      orders(first:5,query:"customer_id:${customerId}",reverse: true){
+        edges{
+          node{
+            id
+            name
+            createdAt
+            returnStatus
+            cancelledAt 
+            tags
+            cancelledAt
+            returnStatus
+            confirmed
+            paymentGatewayNames
+            customer{
+              defaultPhoneNumber{
+                phoneNumber
+              }
+            }
+            currentTotalPriceSet{
+              shopMoney{
+                amount
+              }
+            }
+            refunds(first:50){
+              createdAt
+              totalRefunded{
+                amount
+              }
+            }
+            fulfillments(first:50){
+              trackingInfo(first:10){
+                number
+                company
+              }
+            }
+          }
+        }
+      }
+    }`;
+    const request = await clientProvider(query);
+    let orders = request.data.orders.edges;
+    if (orders.length == 0) {
+      return [];
+    };
+    orders = orders.map(el => el.node.name);
+    return orders;
+  } catch (err) {
+    throw new Error("Failed to get customer order reason --> " + err.message);
+  }
+};
 export {
   getOrderStatusByPhoneNumber,
   getOrderStatusByName,
@@ -562,5 +620,6 @@ export {
   getCustomerIdByPhoneNumber,
   getOrderByCustomerId,
   getOrderByOrderName,
-  cancelOrder
+  cancelOrder,
+  getLastFiverOrdersByCustomerId
 };
