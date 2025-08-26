@@ -30,13 +30,10 @@ exotelRoutes.get("/message", async (req, res) => {
   } catch (err) {}
 });
 
-exotelRoutes.get("/", async (req, res) => {
+exotelRoutes.get("/:path", async (req, res) => {
   try {
-    const flowId = req.query.flow_id
-      ? req.query.flow_id.replace(
-          /[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi,
-          ""
-        )
+    const flowId = req.path.replace("/","")
+      ? req.path.replace("/","")
       : null;
     if (!flowId) {
       throw new Error("Flow id missing");
