@@ -51,13 +51,13 @@ const getOrderStatusByName = async (orderName) => {
   }
 };
 /**
- * 
- * @param {string} phone 
+ *
+ * @param {string} phone
  * @returns {string} customerId
  */
 const getCustomerIdByPhoneNumber = async (phone) => {
   try {
-    phone = phone.replace(/^0+/, '');
+    phone = phone.replace(/^0+/, "");
     phone = phone.includes("+91") ? phone : "+91" + phone;
     const query = `query($identifier: CustomerIdentifierInput!){
       customer: customerByIdentifier(identifier: $identifier){
@@ -71,8 +71,8 @@ const getCustomerIdByPhoneNumber = async (phone) => {
     };
     const request = await clientProvider(query, variables);
     const response = request.data.customer ? request.data.customer.id : null;
-    if(!response){
-      throw new Error("No customer found")
+    if (!response) {
+      throw new Error("No customer found");
     }
     return response.replace("gid://shopify/Customer/", "");
   } catch (err) {
@@ -84,7 +84,7 @@ const getCustomerIdByPhoneNumber = async (phone) => {
 
 /**
  * Get customer order
- * @param {string} customerId 
+ * @param {string} customerId
  * @returns {object} shopify order object
  */
 const getOrderByCustomerId = async (customerId) => {
@@ -133,7 +133,7 @@ const getOrderByCustomerId = async (customerId) => {
     let order = request.data.orders.edges[0];
     if (!order) {
       return null;
-    };
+    }
     order = order.node;
     try {
       const tracking = await getOrderTrackingInfo(order);
@@ -141,19 +141,22 @@ const getOrderByCustomerId = async (customerId) => {
     } catch (err) {
       console.log("Failed to get tracking reason -->" + err.message);
       order.tracking = null;
-    };
+    }
     return order;
   } catch (err) {
     throw new Error("Failed to get customer order reason --> " + err.message);
   }
 };
 /**
- * 
- * @param {string} orderName 
+ *
+ * @param {string} orderName
  * @returns {object} shgopify order object
  */
 const getOrderByOrderName = async (orderName) => {
   try {
+    if (!orderName.includes("#")) {
+      orderName = `#${orderName}`;
+    }
     const query = `query{
       orders(first:1, query:"name:${orderName}"){
         edges{
@@ -206,19 +209,19 @@ const getOrderByOrderName = async (orderName) => {
     } catch (err) {
       console.log("Failed to get tracking reason -->" + err.message);
       order.tracking = null;
-    };
+    }
     return order;
   } catch (err) {
     throw new Error(
       "Failed to get order by order name reason --> ",
-      + err.message
+      +err.message
     );
   }
 };
 /**
- * 
+ *
  * @param {object} order - shopify order
- * @returns 
+ * @returns
  */
 const cancelOrder = async (order) => {
   try {
@@ -260,7 +263,7 @@ const cancelOrder = async (order) => {
     throw new Error("Failed to cancel order reason --> " + err.message);
   }
 };
-const mapOrderStatus = async(order) => {
+const mapOrderStatus = async (order) => {
   try {
     /*
     order status mapped on variuos scenarios 
@@ -283,7 +286,7 @@ const mapOrderStatus = async(order) => {
     } catch (err) {
       console.log("Failed to get tracking reason -->" + err.message);
       order.tracking = null;
-    };
+    }
     if (order_tags.indexOf("refund_credited") != -1) {
       return "refund_successfull";
     }
@@ -603,8 +606,8 @@ const getLastFiverOrdersByCustomerId = async (customerId) => {
     let orders = request.data.orders.edges;
     if (orders.length == 0) {
       return [];
-    };
-    orders = orders.map(el => el.node.name);
+    }
+    orders = orders.map((el) => el.node.name);
     return orders;
   } catch (err) {
     throw new Error("Failed to get customer order reason --> " + err.message);
@@ -621,5 +624,5 @@ export {
   getOrderByCustomerId,
   getOrderByOrderName,
   cancelOrder,
-  getLastFiverOrdersByCustomerId
+  getLastFiverOrdersByCustomerId,
 };
