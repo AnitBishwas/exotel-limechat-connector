@@ -156,7 +156,8 @@ const getOrderByOrderName = async (orderName) => {
   try {
     if (!orderName.includes("#")) {
       orderName = `#${orderName}`;
-    }
+    };
+    console.log('order status by order id here ---->',orderName)
     const query = `query{
       orders(first:1, query:"name:${orderName}"){
         edges{
