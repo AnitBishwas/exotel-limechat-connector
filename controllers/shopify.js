@@ -50,15 +50,36 @@ const getOrderStatusByName = async (orderName) => {
     );
   }
 };
+
 /**
- *
+ * normalise phone numbers with +91 formats
+ * @param {string} phone 
+ * @returns {string}
+ */
+const normalisePhoneNumber = (phone) => {
+  if (!phone) return null;
+  let digits = phone.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("0")) {
+    digits = digits.substring(1);
+  }
+  if (digits.length === 12 && digits.startsWith("91")) {
+    digits = digits.substring(2);
+  }
+  if (digits.length !== 10) {
+    return null;
+  }
+
+  return `+91${digits}`;
+};
+
+
+/**
  * @param {string} phone
  * @returns {string} customerId
  */
 const getCustomerIdByPhoneNumber = async (phone) => {
   try {
-    phone = phone.replace(/^0+/, "");
-    phone = phone.includes("+91") ? phone : "+91" + phone;
+    phone = normalisePhoneNumber(phone);
     const query = `query($identifier: CustomerIdentifierInput!){
       customer: customerByIdentifier(identifier: $identifier){
         id
@@ -66,9 +87,10 @@ const getCustomerIdByPhoneNumber = async (phone) => {
     }`;
     const variables = {
       identifier: {
-        phoneNumber: "+" + phone,
+        phoneNumber: phone,
       },
     };
+    console.log(variables);
     const request = await clientProvider(query, variables);
     const response = request.data.customer ? request.data.customer.id : null;
     if (!response) {
@@ -156,8 +178,8 @@ const getOrderByOrderName = async (orderName) => {
   try {
     if (!orderName.includes("#")) {
       orderName = `#${orderName}`;
-    };
-    console.log('order status by order id here ---->',orderName)
+    }
+    console.log("order status by order id here ---->", orderName);
     const query = `query{
       orders(first:1, query:"name:${orderName}"){
         edges{
