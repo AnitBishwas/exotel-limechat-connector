@@ -147,7 +147,8 @@ const mapOrderStatus = (order) => {
       ).toDateString()}. Prepaid orders are refunded automatically in 5 to 7 working days on source account.`;
     }
     if (order.fulfillments.length == 0) {
-      return `Your latest order is successfully confirmed and will be delivered to you in 2 to 5 working days`;
+      return `Your order has been successfully confirmed and is expected to be delivered within 2–5 working days.
+              Note: Once your order is packed, we’ll share the tracking details with you on both email and WhatsApp, so you can follow the delivery every step of the way.`;
     }
     const isDelivered = order.tracking.delivered?.ok
       ? order.tracking.delivered.date
@@ -180,7 +181,8 @@ const mapOrderStatus = (order) => {
         order.tracking.edd
       ).toDateString()}. Kindly check your whatsapp or email for the tracking link.`;
     }
-    return `Your latest order is successfully confirmed and will be delivered to you in 2 to 5 working days`;
+    return `Your order has been successfully confirmed and is expected to be delivered within 2–5 working days.
+            Note: Once your order is packed, we’ll share the tracking details with you on both email and WhatsApp, so you can follow the delivery every step of the way.`;
   } catch (err) {
     throw new Error("Failed to map order status reason -->" + err.message);
   }
@@ -263,6 +265,7 @@ const mapOrderCancellation = async (order) =>{
       let refundAmount = order?.currentTotalPriceSet?.shopMoney?.amount || null;
       return `Your order placed on ${new Date(isOrderCancelled).toDateString()} is already cancelled. Your refund of amount ${refundAmount} is initiated and will be credited in your source account in 5 to 7 working days from the date of cancellation.`
     };
+    
     const isOrderCancellable = order.fulfillments.length == 0 ;
     if(isOrderCancellable){
       const makeCancelRequest = await cancelOrder(order);
